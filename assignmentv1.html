@@ -1,0 +1,193 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wdi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Flex', sans-serif;
+            background-color: rgb(15, 24, 15); 
+            color: #ffffff;     
+            padding: 20px;
+            line-height: 1.6; 
+        }
+        
+        header, footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color:#647166; 
+            font-size: 2.5em; 
+        }
+        h2 {
+            color: #77907e; 
+            font-size: 2em; 
+        }
+        ul {
+            list-style-type: circle; 
+            margin: 0;
+            padding: 0;
+        }
+        ol {
+            margin-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #f2a3a3; 
+            padding: 10px; 
+            text-align: left;
+        }
+        th {
+            background-color: #f2b2b2; 
+        }
+        footer {
+            font-style: italic; 
+            margin-top: 20px;
+        }
+    
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .left {
+            flex: 1;
+            text-align: center;
+        }
+
+        .portrait {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+        }
+
+        .right {
+            flex: 1;
+        }
+
+        .right ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .right ul li {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+</style>
+    </head>
+    <body>
+    <header>
+        <img src="projectHeader.jpg" alt="Description of image" style="width: 100%; max-width: 600px; height: auto;">
+        <h1>World Development Index</h1>
+        <label for="postcode">Enter Postcode:</label>
+        <input type="text" id="postcode" placeholder="e.g., 123456">
+        <button id="fetchData">Fetch Data</button>
+    
+        <div id="output"></div>
+
+<script>
+    
+
+async function fetchJSON() {
+  try {
+    const response = await fetch('wdi.json');
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    const data = await response.json();
+    console.log(data); 
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+}
+
+fetchJSON();
+
+</script>     
+       
+        <p>The World Development Index App enables users to explore and compare key development metrics across countries, presenting complex data on health, economy, and sustainability in an accessible format. </p>
+        
+        <div class="container">
+            
+            <div class="left">
+                <img src="listFlower.jpg" alt="Portrait Image" class="portrait">
+            </div>
+            
+            
+            <div class="right">
+                <ul>
+                    <li>Global Development Metrics</li>
+                    <li>Country Comparisons</li>
+                    <li>Sector-Specific Insights</li>
+                    <li>Historical Trends</li>
+                </ul>
+            </div>
+        </div>
+        
+    
+    </header>
+
+    <main>
+        <h2>Today, We Are Making Pasta from Scratch</h2>
+        <ol>
+            <li>Place the flour on a clean surface or in a large bowl. Make a well in the center.</li>
+            <li>Crack the eggs into the well and add the salt and olive oil.</li>
+            <li>Using a fork, gently whisk the eggs, gradually incorporating the flour from the edges of the well.</li>
+        </ol>
+
+        <h2>Video Tutorial</h2>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/2TwfHlYGrsY?si=TufWYbdaoLOotzTJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+        <section id="nutrition">
+            <h2>Nutritional Information</h2>
+            <table>
+                <tr>
+                    <th>Ingredient</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                </tr>
+                <tr>
+                    <td>Pasta (1 cup cooked)</td>
+                    <td>200</td>
+                    <td>8g</td>
+                </tr>
+                <tr>
+                    <td>Olive Oil (1 tbsp)</td>
+                    <td>19</td>
+                    <td>0g</td>
+                </tr>
+                <tr>
+                    <td>Parmesan Cheese (1 oz)</td>
+                    <td>10</td>
+                    <td>10g</td>
+                </tr>
+                <tr>
+                    <td>Tomato Sauce (1/2 cup)</td>
+                    <td>40</td>
+                    <td>1g</td>
+                </tr>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Your Culinary Journey. All rights reserved.</p>
+    </footer>
+</body>
+
+
+
+</body>
+</html>

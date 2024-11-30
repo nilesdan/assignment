@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Development Index</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Flex', sans-serif;
+            background-color: rgb(15, 24, 15);
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header, footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #647166;
+            font-size: 2.5em;
+        }
+        ul {
+            list-style-type: circle;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+        .portrait {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #f2a3a3;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2b2b2;
+        }
+        footer {
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="projectHeader.jpg" alt="World Development Index Header" style="width: 100%; max-width: 600px; height: auto;">
+        <h1>World Development Index</h1>
+        <label for="countryCode">Enter Country Code:</label>
+        <input type="text" id="countryCode" placeholder="e.g., SG">
+        <button id="fetchData">Fetch Data</button>
+        <div id="output"></div>
+        <p>This app allows users to explore key development metrics globally, with data on health, economy, and sustainability presented accessibly.</p>
+    </header>
+    <main>
+        <div class="container">
+            <div class="left">
+                <img src="listFlower.jpg" alt="Decorative Image" class="portrait">
+            </div>
+            <div class="right">
+                <ul>
+                    <li>Global Development Metrics</li>
+                    <li>Country Comparisons</li>
+                    <li>Sector-Specific Insights</li>
+                    <li>Historical Trends</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 World Development Index Project. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function fetchJSON() {
+            try {
+                const response = await fetch('wdi.json');
+                if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
+                const data = await response.json();
+                console.log(data);
+                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                console.error('There has been a problem with your fetch operation:', error);
+                document.getElementById('output').textContent = 'Error fetching data.';
+            }
+        }
+        document.getElementById('fetchData').addEventListener('click', fetchJSON);
+    </script>
+</body>
+</html>

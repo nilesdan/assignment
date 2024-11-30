@@ -1,0 +1,366 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Development Index</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css/css/flag-icon.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            font-family: 'Roboto Flex', sans-serif;
+            background-color: rgb(15, 24, 15);
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header, footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #647166;
+            font-size: 2.5em;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+        .portrait {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+            border-radius: 8px; 
+        }
+        .left {
+            width: 30%;
+        }
+        .right {
+            width: 30%;
+        }
+        .third {
+            width: 30%;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #f2a3a3;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2b2b2;
+        }
+        footer {
+            font-style: italic;
+            margin-top: 20px;
+        }
+        .instructions {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-size: 16px;
+        color: #e8f5e9; 
+        line-height: 1.6; 
+        }       
+        .instructions strong {
+        color: #618762; 
+        font-weight: 600; 
+        text-decoration: none; /
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+        select {
+            padding: 5px;
+            margin: 5px 0;
+        }
+        #map1, #map2, #map3 {
+       width: 400px;
+          height: 400px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <img src="projectHeader.jpg" alt="World Development Index Header" style="width: 100%; height: 50px; object-fit: cover; border-radius: 8px;">
+        <h1>World Development Index</h1>
+        
+        <div class="instructions">
+            <p>Press and hold <strong>'Ctrl'</strong> (Windows) or <strong>'Cmd'</strong> (Mac) while clicking to select multiple options.</p>
+          </div>
+          
+        <!-- Country Select (multiple selection) -->
+        <label for="countrySelect">Select Countries:</label>
+        <select id="countrySelect" multiple>
+            <option value="ARG">Argentina</option>
+            <option value="AUS">Australia</option>
+            <option value="BRA">Brazil</option>
+            <option value="IND">India</option>
+            <option value="IDN">Indonesia</option>
+            <option value="CHN">China</option>
+            <option value="ITA">Italy</option>
+            <option value="JPN">Japan</option>
+            <option value="KOR">Korea</option>
+            <option value="GBR">United Kingdom</option>
+            <option value="MEX">Mexico</option>
+            <option value="USA">United States</option>
+        </select>
+        
+        <!-- Year Select -->
+        <label for="yearSelect">Select Year:</label>
+        <select id="yearSelect">
+            <option value="2014">2014</option>
+            <option value="2015">2015</option>
+            <option value="2016">2016</option>
+            <option value="2017">2017</option>
+            <option value="2018">2018</option>
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+        </select>
+        
+        <!-- Indicator Select -->
+        <label for="indicatorSelect">Select Indicator:</label>
+        <select id="indicatorSelect">
+            <option value="Adolescent fertility rate (births per 1,000 women ages 15-19)">Adolescent fertility rate (births per 1,000 women ages 15-19)</option>
+            <option value="Exports of goods and services (% of GDP)">Exports of goods and services (% of GDP)</option>
+            <option value="Fertility rate, total (births per woman)">Fertility rate, total (births per woman)</option>
+            <option value="Foreign direct investment, net inflows (BoP, current US$)">Foreign direct investment, net inflows (BoP, current US$)</option>
+            <option value="Forest area (sq. km)">Forest area (sq. km)</option>
+            <option value="GDP (current US$)">GDP (current US$)</option>
+            <option value="GDP growth (annual %)">GDP growth (annual %)</option>
+            <option value="GNI per capita, Atlas method (current US$)">GNI per capita, Atlas method (current US$)</option>
+            <option value="GNI per capita, PPP (current international $)">GNI per capita, PPP (current international $)</option>
+            <option value="GNI, Atlas method (current US$)">GNI, Atlas method (current US$)</option>
+            <option value="GNI, PPP (current international $)">GNI, PPP (current international $)</option>
+            <option value="Gross capital formation (% of GDP)">Gross capital formation (% of GDP)</option>
+            <option value="High-technology exports (% of manufactured exports)">High-technology exports (% of manufactured exports)</option>
+        </select>
+        
+        <button id="fetchData">Retrieve Data</button>
+        <div id="output"></div>
+        
+        <p>This app allows users to explore key development metrics globally, with data on health, economy, and sustainability presented accessibly.</p>
+    </header>
+    
+    <main>
+        <div>
+            <div id="chart"></div>
+        </div>
+
+      
+            <!-- Map Container -->
+            <div id="map1" style="width: 400px; height: 400px;"></div>
+            <div id="map2" style="width: 400px; height: 400px;"></div>
+            <div id="map3" style="width: 400px; height: 400px;"></div>
+       
+
+        <div class="container">
+            <!-- Left section for portrait image -->
+            <div class="left">
+                <img src="listFlower.jpg" alt="Decorative Image" class="portrait">
+            </div>
+
+            <!-- Right section for the list -->
+            <div class="right">
+                <ul>
+                    <li>Global Development Metrics</li>
+                    <li>Country Comparisons</li>
+                    <li>Sector-Specific Insights</li>
+                    <li>Historical Trends</li>
+                </ul>
+            </div>
+
+            <!-- Third flex box for worldPeace.avif image -->
+            <div class="third">
+                <img src="worldPeace.avif" alt="World Peace" class="portrait">
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 World Development Index Project. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function fetchJSON() {
+            const selectedCountries = Array.from(document.getElementById('countrySelect').selectedOptions).map(option => option.value);
+            const selectedYear = document.getElementById('yearSelect').value;
+            const selectedIndicator = document.getElementById('indicatorSelect').value;
+
+            console.log(`Selected Countries: ${selectedCountries}`);
+            console.log(`Selected Year: ${selectedYear}`);
+            console.log(`Selected Indicator: ${selectedIndicator}`);
+
+            try {
+                const response = await fetch('wdi.json');
+
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Fetched data:', data);  // Check the structure of the fetched data
+
+                // Filter data for selected countries and indicator
+                const filteredData = selectedCountries.map(country => {
+                    const countryData = data.find(entry => entry["Country Code"] === country && entry["Series Name"] === selectedIndicator);
+                    if (countryData) {
+                        const yearKey = `${selectedYear} [YR${selectedYear}]`;  // Format the key like "2014 [YR2014]"
+                        return {
+                            name: country,
+                            data: Object.entries(countryData)
+                                .filter(([key, value]) => /^\d{4} \[YR\d{4}\]$/.test(key) && value !== "..")
+                                .map(([key, value]) => ({ x: key.split(' ')[0], y: value }))
+                        };
+                    }
+                    return null;
+                }).filter(Boolean); // Remove any null entries (countries without data)
+
+                const chartOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 400
+                    },
+                    title: {
+                        text: `${selectedIndicator} Comparison`,
+                        align: 'center',
+                        style: {
+                            fontSize: '18px',
+                            color: '#fff'
+                        }
+                    },
+                    series: filteredData,
+                    xaxis: {
+                        type: 'category',
+                        title: {
+                            text: 'Year'
+                        },
+                        tooltip: {
+                            enabled: true,
+                            formatter: function (val) {
+                                return `Year: ${val}`;
+                            }
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Value'
+                        },
+                        labels: {
+                            formatter: function (value) {
+                                return value.toFixed(2); // Ensure the y-axis labels show two decimal places
+                            }
+                        }
+                    },
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                            const data = w.globals.series[seriesIndex][dataPointIndex];
+                            return `<div style="padding: 5px; background: #333; color: #fff; border-radius: 3px;">
+                                        <strong>Country:</strong> ${w.globals.seriesNames[seriesIndex]}<br>
+                                        <strong>Value:</strong> ${data}<br>
+                                        <strong>Year:</strong> ${w.globals.labels[dataPointIndex]}
+                                    </div>`;
+                        }
+                    }
+                };
+
+                new ApexCharts(document.querySelector("#chart"), chartOptions).render();
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('Failed to fetch data.');
+            }
+        }
+
+        document.getElementById('fetchData').addEventListener('click', fetchJSON);
+    
+        // / Initialize three maps
+        const map1 = L.map('map1').setView([0, 0], 2); // Default view
+const map2 = L.map('map2').setView([0, 0], 2); // Default view
+const map3 = L.map('map3').setView([0, 0], 2); // Default view
+
+// / Add tile layers to the maps (you can change the tile layer URL if needed)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map1);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map2);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map3);
+
+// Event listener for updating the maps based on country selection
+document.getElementById('countrySelect').addEventListener('change', function() {
+    const selectedCountries = Array.from(this.selectedOptions).map(option => option.value);
+    
+    // Example country coordinates (you should use actual coordinates for real-world mapping)
+    const countryCoordinates = {
+        'ARG': [-38.4161, -63.6167],  // Argentina
+        'AUS': [-25.2744, 133.7751],  // Australia
+        'BRA': [-14.2350, -51.9253],  // Brazil
+        'IND': [20.5937, 78.9629],    // India
+        'IDN': [-0.7893, 113.9213],   // Indonesia
+        'CHN': [35.8617, 104.1954],   // China
+        'ITA': [41.8719, 12.5674],    // Italy
+        'JPN': [36.2048, 138.2529],   // Japan
+        'KOR': [35.9078, 127.7669],   // South Korea
+        'GBR': [55.3781, -3.4360],    // United Kingdom
+        'MEX': [23.6345, -102.5528],  // Mexico
+        'USA': [37.0902, -95.7129],   // United States
+    };
+
+    // Clear existing markers
+    map1.eachLayer(layer => layer instanceof L.Marker && map1.removeLayer(layer));
+    map2.eachLayer(layer => layer instanceof L.Marker && map2.removeLayer(layer));
+    map3.eachLayer(layer => layer instanceof L.Marker && map3.removeLayer(layer));
+
+    // Add markers to maps based on selected countries
+    selectedCountries.forEach(countryCode => {
+        const coords = countryCoordinates[countryCode];
+        if (coords) {
+            // Add markers to all three maps
+            L.marker(coords).addTo(map1).bindPopup(countryCode);
+            L.marker(coords).addTo(map2).bindPopup(countryCode);
+            L.marker(coords).addTo(map3).bindPopup(countryCode);
+        }
+    });
+});
+
+document.getElementById('countrySelect').addEventListener('change', function() {
+    const selectedCountries = Array.from(this.selectedOptions).map(option => option.value);
+    
+    selectedCountries.forEach(country => {
+        const coords = countryCoordinates[country];
+        if (coords) {
+            // Update each map's view
+            map1.setView(coords, 6);
+            map2.setView(coords, 6);
+            map3.setView(coords, 6);
+        }
+    });
+});
+
+    </script>
+</body>
+</html>

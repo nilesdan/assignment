@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Development Index</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: rgb(15, 24, 15);
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #647166;
+            font-size: 2.5em;
+        }
+        #chartContainer {
+            height: 400px;
+            width: 100%;
+        }
+        #map1, #map2, #map3 {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        select {
+            padding: 5px;
+            margin: 5px 0;
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #647166;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>World Development Index</h1>
+
+        <label for="countrySelect">Select Countries:</label>
+        <select id="countrySelect" multiple>
+            <option value="ARG">Argentina</option>
+            <option value="AUS">Australia</option>
+            <option value="BRA">Brazil</option>
+            <option value="IND">India</option>
+            <option value="IDN">Indonesia</option>
+            <option value="CHN">China</option>
+            <option value="ITA">Italy</option>
+            <option value="JPN">Japan</option>
+            <option value="KOR">Korea</option>
+            <option value="GBR">United Kingdom</option>
+            <option value="MEX">Mexico</option>
+            <option value="USA">United States</option>
+        </select>
+
+        <label for="yearSelect">Select Year:</label>
+        <select id="yearSelect">
+            <option value="2014">2014</option>
+            <option value="2015">2015</option>
+            <option value="2016">2016</option>
+            <option value="2017">2017</option>
+            <option value="2018">2018</option>
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+        </select>
+
+        <label for="indicatorSelect">Select Indicator:</label>
+        <select id="indicatorSelect">
+            <option value="Adolescent fertility rate (births per 1,000 women ages 15-19)">Adolescent fertility rate (births per 1,000 women ages 15-19)</option>
+            <option value="Exports of goods and services (% of GDP)">Exports of goods and services (% of GDP)</option>
+            <option value="Fertility rate, total (births per woman)">Fertility rate, total (births per woman)</option>
+        </select>
+
+        <button id="fetchData">Retrieve Data</button>
+    </header>
+
+    <div id="chartContainer"></div>
+    <div id="map1"></div>
+    <div id="map2"></div>
+    <div id="map3"></div>
+
+    <script>
+        // Fetching and rendering the data
+        async function fetchJSON() {
+            const selectedCountries = Array.from(document.getElementById('countrySelect').selectedOptions).map(option => option.value);
+            const selectedYear = document.getElementById('yearSelect').value;
+            const selectedIndicator = document.getElementById('indicatorSelect').value;
+
+            try {
+                const response = await fetch('wdi.json'); // Replace with actual path to your JSON data
+
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Fetched data:', data);
+
+                // Filter the data for selected countries and indicator
+                const filteredData = selectedCountries.map(country => {
+                    const countryData = data.find(entry => entry["Country Code"] === country);
+                    if (countryData) {
+                        return {
+                            country: countryData["Country Name"],
+                            value: countryData[selectedIndicator] || "N/A",
+                            latitude: countryData["Latitude"],
+                            longitude: countryData["Longitude"]
+                        };
+                    }
+                    return null;
+                }).filter(item => item !== null);
+
+                console.log('Filtered Data:', filteredData);
+
+                // Display chart and maps
+                renderChart(filteredData);
+                renderMaps(filteredData);
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // Function to render the map
+        function renderMaps(filteredData) {
+            // Clear previous maps
+            const mapContainers = [document.getElementById('map1'), document.getElementById('map2'), document.getElementById('map3')];
+            mapContainers.forEach(map => map.innerHTML = "");
+
+            filteredData.forEach((item, index) => {
+                const mapElement = mapContainers[index];
+                if (mapElement) {
+                    const map = L.map(mapElement).setView([item.latitude, item.longitude], 4);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                    L.marker([item.latitude, item.longitude])
+                        .addTo(map)
+                        .bindPopup(`<b>${item.country}</b><br>Value: ${item.value}`);
+                }
+            });
+        }
+
+        // Function to render the chart
+        function renderChart(filteredData) {
+            const chartData = {
+                labels: filteredData.map(item => item.country),
+                datasets: [{
+                    label: 'Selected Indicator Value',
+                    data: filteredData.map(item => item.value === "N/A" ? 0 : item.value), // Set "N/A" as 0
+                    borderColor: '#4bc0c0',
+                    backgroundColor: '#4bc0c0',
+                    fill: false,
+                }]
+            };
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            };
+
+            // Render Chart
+            const ctx = document.getElementById('chartContainer').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: chartOptions
+            });
+        }
+
+        document.getElementById('fetchData').addEventListener('click', fetchJSON);
+    </script>
+</body>
+</html>

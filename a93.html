@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Development Index</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+            --bg-color: #0a1f0a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-color: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Roboto Flex', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920');
+            background-size: cover;
+            background-attachment: fixed;
+            backdrop-filter: blur(10px);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 31, 10, 0.85);
+            z-index: -1;
+        }
+        
+        .top-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            height: 600px;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        .controls {
+            width: 30%;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chart-container {
+            width: 70%;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .maps-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        #map1, #map2, #map3 {
+            flex: 1;
+            height: 300px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        #map1:hover, #map2:hover, #map3:hover {
+            transform: scale(1.02);
+        }
+        
+        select {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(26, 43, 26, 0.8);
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
+        }
+        
+        select[multiple] {
+            height: 200px;
+        }
+        
+        option {
+            padding: 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+        }
+
+        option:hover {
+            background-color: var(--primary-color);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeInDown 1s ease-in;
+        }
+        
+        .instructions {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-size: 14px;
+            padding: 15px;
+            background: rgba(46, 204, 113, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .instructions strong {
+            color: var(--primary-color);
+        }
+
+        #chart {
+            height: 100%;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .country-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 31, 10, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 300px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Loading animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 31, 10, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading::after {
+            content: '';
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--primary-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div id="loading" class="loading"></div>
+    
+    <h1>World Development Index</h1>
+    
+    <div class="top-container">
+        <div class="controls">
+            <div class="instructions">
+                <p>Press and hold <strong>'Ctrl'</strong> (Windows) or <strong>'Cmd'</strong> (Mac) while clicking to select exactly 3 countries.</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <label for="countrySelect">Select Countries:</label>
+            <select id="countrySelect" multiple>
+                <option value="ARG">Argentina</option>
+                <option value="AUS">Australia</option>
+                <option value="BRA">Brazil</option>
+                <option value="IND">India</option>
+                <option value="IDN">Indonesia</option>
+                <option value="CHN">China</option>
+                <option value="ITA">Italy</option>
+                <option value="JPN">Japan</option>
+                <option value="KOR">Korea</option>
+                <option value="GBR">United Kingdom</option>
+                <option value="MEX">Mexico</option>
+                <option value="USA">United States</option>
+            </select>
+            
+            <label for="indicatorSelect">Select Indicator:</label>
+            <select id="indicatorSelect">
+                <option value="Adolescent fertility rate">Adolescent fertility rate (births per 1,000 women ages 15-19)</option>
+                <option value="Exports of goods">Exports of goods and services (% of GDP)</option>
+                <option value="Fertility rate">Fertility rate, total (births per woman)</option>
+                <option value="Foreign direct investment">Foreign direct investment, net inflows (BoP, current US$)</option>
+                <option value="Forest area">Forest area (sq. km)</option>
+                <option value="GDP">GDP (current US$)</option>
+                <option value="GDP growth">GDP growth (annual %)</option>
+                <option value="GNI per capita">GNI per capita, Atlas method (current US$)</option>
+                <option value="GNI per capita PPP">GNI per capita, PPP (current international $)</option>
+            </select>
+        </div>
+        
+        <div class="chart-container">
+            <div id="chart"></div>
+        </div>
+    </div>
+    
+    <div class="maps-container">
+        <div id="map1"><div class="country-info" id="info1"></div></div>
+        <div id="map2"><div class="country-info" id="info2"></div></div>
+        <div id="map3"><div class="country-info" id="info3"></div></div>
+    </div>
+
+    <script>
+        let chart = null;
+        let markers = [];
+        
+        // Initialize maps
+        const maps = ['map1', 'map2', 'map3'].map(id => {
+            const map = L.map(id).setView([0, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            return map;
+        });
+
+        const countryCoordinates = {
+            ARG: { lat: -38.4161, lon: -63.6167, zoom: 4, img: 'photo-1589909202802-8f4aadce1849' },
+            AUS: { lat: -25.2744, lon: 133.7751, zoom: 4, img: 'photo-1523482580672-f109ba8cb9be' },
+            BRA: { lat: -14.2350, lon: -51.9253, zoom: 4, img: 'photo-1483729558449-99ef09a8c325' },
+            IND: { lat: 20.5937, lon: 78.9629, zoom: 4, img: 'photo-1524492412937-b28074a5d7da' },
+            IDN: { lat: -0.7893, lon: 113.9213, zoom: 4, img: 'photo-1596422846543-75c6fc197f07' },
+            CHN: { lat: 35.8617, lon: 104.1954, zoom: 4, img: 'photo-1547981609-4b6bfe67ca0b' },
+            ITA: { lat: 41.8719, lon: 12.5674, zoom: 4, img: 'photo-1525874684015-7379afe3e89c' },
+            JPN: { lat: 36.2048, lon: 138.2529, zoom: 4, img: 'photo-1480796927426-f609979314bd' },
+            KOR: { lat: 35.9078, lon: 127.7669, zoom: 4, img: 'photo-1517154421773-0529f29ea451' },
+            GBR: { lat: 51.5074, lon: -0.1278, zoom: 4, img: 'photo-1513635269975-59663e0ac1ad' },
+            MEX: { lat: 23.6345, lon: -102.5528, zoom: 4, img: 'photo-1518638150340-f706e86654de' },
+            USA: { lat: 37.0902, lon: -95.7129, zoom: 4, img: 'photo-1501594907352-04cda38ebc29' }
+        };
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            errorElement.classList.add('animate__animated', 'animate__shakeX');
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+                errorElement.classList.remove('animate__animated', 'animate__shakeX');
+            }, 3000);
+        }
+
+        async function updateVisualization() {
+            const selectedCountries = Array.from(document.getElementById('countrySelect').selectedOptions)
+                .map(option => option.value);
+            
+            if (selectedCountries.length !== 3) {
+                showError('Please select exactly 3 countries');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('wdi.json');
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const data = await response.json();
+                
+                const indicator = document.getElementById('indicatorSelect').value;
+                const chartData = processData(data, selectedCountries, indicator);
+                
+                updateChart(chartData);
+                updateMaps(selectedCountries);
+                
+            } catch (error) {
+                showError('Error loading data: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function processData(data, countries, indicator) {
+            return countries.map(country => {
+                const countryData = data.find(d => 
+                    d["Country Code"] === country && 
+                    d["Series Name"].includes(indicator)
+                );
+                
+                if (!countryData) return null;
+
+                return {
+                    name: country,
+                    data: Object.entries(countryData)
+                        .filter(([key]) => /^\d{4}/.test(key))
+                        .map(([year, value]) => ({
+                     
+                            x: year.split(' ')[0],
+                            y: parseFloat(value) || null
+                        }))
+                        .filter(point => point.y !== null)
+                        .sort((a, b) => a.x.localeCompare(b.x))
+                };
+            }).filter(Boolean);
+        }
+
+        function updateChart(data) {
+            const options = {
+                series: data,
+                chart: {
+                    type: 'line',
+                    height: '100%',
+                    background: 'transparent',
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 150
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 350
+                        }
+                    }
+                },
+                theme: {
+                    mode: 'dark',
+                    palette: 'palette1'
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                colors: ['#2ecc71', '#3498db', '#e74c3c'],
+                xaxis: {
+                    type: 'category',
+                    labels: {
+                        style: {
+                            colors: '#ecf0f1',
+                            fontSize: '12px'
+                        }
+                    },
+                    title: {
+                        text: 'Year',
+                        style: {
+                            color: '#ecf0f1'
+                        }
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            colors: '#ecf0f1'
+                        },
+                        formatter: (value) => value.toLocaleString()
+                    },
+                    title: {
+                        text: document.getElementById('indicatorSelect').value,
+                        style: {
+                            color: '#ecf0f1'
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        colors: '#ecf0f1'
+                    },
+                    position: 'top',
+                    horizontalAlign: 'right'
+                },
+                tooltip: {
+                    theme: 'dark',
+                    x: {
+                        show: true
+                    },
+                    y: {
+                        formatter: (value) => value.toLocaleString()
+                    }
+                },
+                grid: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    strokeDashArray: 5
+                }
+            };
+
+            if (chart) {
+                chart.destroy();
+            }
+            chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        }
+
+        function updateMaps(countries) {
+            // Clear existing markers
+            markers.forEach(marker => marker.remove());
+            markers = [];
+
+            maps.forEach((map, index) => {
+                const country = countries[index];
+                if (countryCoordinates[country]) {
+                    const { lat, lon, zoom, img } = countryCoordinates[country];
+                    
+                    // Update map view with animation
+                    map.flyTo([lat, lon], zoom, {
+                        duration: 2
+                    });
+
+                    // Add custom marker
+                    const marker = L.marker([lat, lon]).addTo(map);
+                    markers.push(marker);
+
+                    // Update country info box background
+                    const infoBox = document.getElementById(`info${index + 1}`);
+                    infoBox.style.backgroundImage = `url(https://images.unsplash.com/${img}?auto=format&fit=crop&w=300)`;
+                    infoBox.style.display = 'block';
+
+                    // Add hover events to show/hide country info
+                    map.getContainer().addEventListener('mouseenter', () => {
+                        const countryName = document.getElementById('countrySelect').options.namedItem(country).text;
+                        infoBox.innerHTML = `<h3>${countryName}</h3>`;
+                        infoBox.style.display = 'block';
+                    });
+
+                    map.getContainer().addEventListener('mouseleave', () => {
+                        infoBox.style.display = 'none';
+                    });
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('countrySelect').addEventListener('change', updateVisualization);
+        document.getElementById('indicatorSelect').addEventListener('change', updateVisualization);
+
+        // Initial setup
+        window.addEventListener('load', () => {
+            hideLoading();
+            maps.forEach(map => {
+                map.setView([0, 0], 2);
+                map.invalidateSize();
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            maps.forEach(map => map.invalidateSize());
+            if (chart) {
+                chart.render();
+            }
+        });
+    </script>
+</body>
+</html>

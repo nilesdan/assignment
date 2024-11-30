@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Development Index Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.3/dist/simple-statistics.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        /* CSS styles omitted for brevity */
+    </style>
+</head>
+<body>
+    <h1>World Development Index</h1>
+    <div class="main-container">
+        <div class="controls">
+            <div class="instructions">
+                <p>Press and hold <strong>'Ctrl'</strong> (Windows) or <strong>'Cmd'</strong> (Mac) while clicking to select exactly 3 countries.</p>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <label for="countrySelect">Select Countries:</label>
+            <select id="countrySelect" multiple>
+                <option value="ARG">Argentina</option>
+                <option value="AUS">Australia</option>
+                <option value="BRA">Brazil</option>
+                <option value="IND">India</option>
+                <option value="IDN">Indonesia</option>
+                <option value="CHN">China</option>
+                <option value="ITA">Italy</option>
+                <option value="JPN">Japan</option>
+                <option value="KOR">Korea</option>
+                <option value="GBR">United Kingdom</option>
+                <option value="MEX">Mexico</option>
+                <option value="USA">United States</option>
+            </select>
+            <label for="indicatorSelect">Select Indicator:</label>
+            <select id="indicatorSelect">
+                <option value="Adolescent fertility rate">Adolescent fertility rate (births per 1,000 women ages 15-19)</option>
+                <option value="Exports of goods">Exports of goods and services (% of GDP)</option>
+                <option value="Fertility rate">Fertility rate, total (births per woman)</option>
+                <option value="Foreign direct investment">Foreign direct investment, net inflows (BoP, current US$)</option>
+                <option value="Forest area">Forest area (sq. km)</option>
+                <option value="GDP">GDP (current US$)</option>
+                <option value="GDP growth">GDP growth (annual %)</option>
+                <option value="GNI per capita">GNI per capita, Atlas method (current US$)</option>
+                <option value="GNI per capita PPP">GNI per capita, PPP (current international $)</option>
+            </select>
+        </div>
+        <div class="visualization-container">
+            <div class="chart-container">
+                <div id="chart"></div>
+            </div>
+            <div class="stats-container">
+                <h3>Statistical Analysis</h3>
+                <div id="statsOutput" class="stats-grid"></div>
+            </div>
+            <div class="maps-container">
+                <div id="map1"></div>
+                <div id="map2"></div>
+                <div id="map3"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let chart = null;
+
+        const maps = ["map1", "map2", "map3"].map((id) => {
+            const map = L.map(id).setView([0, 0], 2);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "© OpenStreetMap contributors",
+            }).addTo(map);
+            return map;
+        });
+
+        const countryCoordinates = {
+            // Coordinates omitted for brevity
+        };
+
+        function showError(message) {
+            const errorElement = document.getElementById("errorMessage");
+            errorElement.textContent = message;
+            errorElement.style.display = "block";
+            setTimeout(() => {
+                errorElement.style.display = "none";
+            }, 3000);
+        }
+
+        function performMLForecast(data, yearsToPredict = 5) {
+            // ML forecast function implementation omitted for brevity
+        }
+
+        function performStatisticalTests(data) {
+            // Statistical tests implementation omitted for brevity
+        }
+
+        function getPairedData(data1, data2) {
+            // Paired data extraction function implementation omitted for brevity
+        }
+
+        function calculateStatistics(array1, array2, name1, name2) {
+            // Statistics calculation function implementation omitted for brevity
+        }
+
+        function displayStatistics(results) {
+            // Statistics display function implementation omitted for brevity
+        }
+
+        async function updateVisualization() {
+            const selectedCountries = Array.from(
+                document.getElementById("countrySelect").selectedOptions
+            ).map((option) => option.value);
+
+            if (selectedCountries.length !== 3) {
+                showError("Please select exactly 3 countries");
+                return;
+            }
+
+            try {
+                const response = await fetch("wdi.json");
+                if (!response.ok) throw new Error("Failed to fetch data");
+                const data = await response.json();
+
+                const indicator = document.getElementById("indicatorSelect").value;
+                let chartData = processData(data, selectedCountries, indicator);
+                
+                // Add ML predictions
+                chartData = performMLForecast(chartData);
+                
+                updateChart(chartData);
+                updateMaps(selectedCountries);
+                performStatisticalTests(chartData);
+            } catch (error) {
+                showError("Error loading data: " + error.message);
+            }
+        }
+
+        function processData(data, countries, indicator) {
+            // Data processing function implementation omitted for brevity
+        }
+
+        function updateChart(data) {
+            // Chart update function implementation omitted for brevity
+        }
+
+        function updateMaps(countries) {
+            // Map update function implementation omitted for brevity
+        }
+
+        document.getElementById("countrySelect").addEventListener("change", updateVisualization);
+        document.getElementById("indicatorSelect").addEventListener("change", updateVisualization);
+
+        maps.forEach((map) => map.setView([0, 0], 2));
+    </script>
+</body>
+</html>
